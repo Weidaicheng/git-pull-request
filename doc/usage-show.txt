@@ -2,4 +2,5 @@ Usages: list [options] [arguments] <number>
 
 Options:
   -h|--help     Get help.
+  -o|--owner    Repository owner(default from pull url).
   -r|--remote   Use specify remote(default origin).
