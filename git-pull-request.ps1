@@ -6,6 +6,7 @@ Import-Module -Force "$PSScriptRoot/module/HelpModule"
 Import-Module -Force "$PSScriptRoot/module/VersionModule"
 Import-Module -Force "$PSScriptRoot/module/ListPRModule"
 Import-Module -Force "$PSScriptRoot/module/ShowPRModule"
+Import-Module -Force "$PSScriptRoot/module/SettingModule"
 
 # global variables
 $Global:root = $PSScriptRoot
@@ -24,7 +25,7 @@ if ($arg1 -eq "--help" -or $arg1 -eq "-h") {
         Show-Help
     }
     catch {
-        Write-Host -ForegroundColor Red $_.Exception.Message
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
     }
     finally {
         exit 0
@@ -38,7 +39,40 @@ if ($arg1 -eq "--version" -or $arg1 -eq "-v") {
         Show-Version
     }
     catch {
-        Write-Host -ForegroundColor Red $_.Exception.Message
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# settings
+# git pull-request setting.[sub setting] [new setting]
+if ($arg1.StartsWith("setting")) {
+    try {
+        if ($arg1 -eq "setting") {
+            if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+                Show-SettingHelp
+                exit 0
+            }
+            
+            Show-AllSettings
+        }
+        else {
+            $subSetting = $arg1.Replace("setting.", "")
+    
+            if ($null -eq $args[1]) {
+                # display specific setting
+                Show-Setting $subSetting
+            }
+            else {
+                # set specific setting
+                $Global:settings = Update-Setting $subSetting $args[1]
+            }
+        }
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
     }
     finally {
         exit 0
@@ -70,7 +104,7 @@ if ($arg1 -eq "list") {
         Show-PullRequests $owner $repo $state
     }
     catch {
-        Write-Host -ForegroundColor Red $_.Exception.Message
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
     }
     finally {
         exit 0
@@ -102,7 +136,7 @@ if ($arg1 -eq "show") {
         Show-PullRequest $owner $repo $number
     }
     catch {
-        Write-Host -ForegroundColor Red $_.Exception.Message
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
     }
     finally {
         exit 0
