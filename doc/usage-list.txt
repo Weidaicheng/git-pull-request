@@ -1,0 +1,9 @@
+Usages: list [options] [arguments]
+
+Options:
+  -h|--help     Get help.
+  -r|--remote   Use specify remote(default origin).
+  -s|--state    Use specify state of pull requests:
+                  open(default)
+                  closed
+                  all.

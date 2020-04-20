@@ -1,0 +1,5 @@
+Usages: list [options] [arguments] <number>
+
+Options:
+  -h|--help     Get help.
+  -r|--remote   Use specify remote(default origin).

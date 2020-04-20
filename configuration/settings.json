@@ -1,0 +1,8 @@
+{
+    "Api": {
+        "Url": "https://api.github.com"
+    },
+    "About": {
+        "Version": "1.0.0"
+    }
+}

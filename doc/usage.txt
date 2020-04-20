@@ -1,0 +1,9 @@
+Usages: pull-request [options] [command] [command-options] [arguments]
+
+Options:
+  -h|--help     Get help.
+  -v|--version  Get version information.
+
+Commands:
+  list          List pull requests from pull remote.
+  show          Show pull request detail by number.
