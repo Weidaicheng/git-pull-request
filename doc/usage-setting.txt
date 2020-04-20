@@ -1,0 +1,4 @@
+Usages: setting.[sub setting] [new setting]
+
+Options:
+  -h|--help     Get help.
