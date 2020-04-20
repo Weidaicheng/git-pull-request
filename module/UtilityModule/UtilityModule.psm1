@@ -71,7 +71,7 @@ function Get-CommandOptionValue {
         }
     }
 
-    return $value
+    return $value.TrimEnd()
 }
 
 function Get-RequiredArgument {
