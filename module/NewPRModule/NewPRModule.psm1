@@ -17,7 +17,7 @@ function New-PullRequest {
 
     try {
         if ($Global:settings.Global.Token -eq "") {
-            throw "Token not set."
+            throw "Token not set, please use setting command to set."
         }
 
         $headers = @{
@@ -38,13 +38,13 @@ function New-PullRequest {
     }
     catch {
         if ($_.Exception.Response.StatusCode.Value__ -eq "404") {
-            throw "Pull request creation failed. Please check you parameters."
+            throw "Pull request creation failed, please check you parameters."
         }
         elseif ($_.Exception.Response.StatusCode.Value__ -eq "422") {
             throw "A pull request already exists."
         }
         else {
-            throw "Pull request creation failed. More detail: $($_.Exception.Message)"
+            throw $_.Exception.Message
         }
     }
 }
