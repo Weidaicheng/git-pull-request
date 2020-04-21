@@ -7,4 +7,5 @@ Options:
 Commands:
   list          List pull requests from pull remote.
   show          Show pull request detail by number.
+  new           Create a new pull request.
   setting       Show/Set configuration.

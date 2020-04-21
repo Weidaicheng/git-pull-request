@@ -1,6 +1,7 @@
 {
   "Global": {
-    "ErrorColor": "Red"
+    "ErrorColor": "Red",
+    "Token": ""
   },
   "Api": {
     "Url": "https://api.github.com"
