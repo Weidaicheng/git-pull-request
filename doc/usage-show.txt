@@ -1,4 +1,4 @@
-Usages: list [options] [arguments] <number>
+Usages: show [options] [arguments] <number>
 
 Options:
   -h|--help     Get help.
