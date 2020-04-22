@@ -31,7 +31,7 @@ function New-PullRequest {
         } | ConvertTo-Json
         $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls" -Method "Post" -ContentType "application/json" -Headers $headers -Body $json -SkipHttpErrorCheck -StatusCodeVariable statusCode
 
-        if ($statusCode -eq '200') {
+        if ($statusCode -eq '201') {
             return @{
                 number = $response.number
                 url    = $response.url
