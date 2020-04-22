@@ -44,7 +44,7 @@ function New-PullRequest {
             throw $response.errors[0].message
         }
         else {
-            throw "Pull request $number re-open failed."
+            throw "Pull request $number creation failed."
         }
     }
     catch {
