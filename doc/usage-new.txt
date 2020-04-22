@@ -1,0 +1,9 @@
+Usages: new [options] [arguments] <title>
+
+Options:
+  -h|--help     Get help.
+  -o|--owner    Which owner's reporitory you want to create a PR.
+  -r|--remote   Use specify remote(default origin).  
+  -e|--head     Branch name where your changes are implemented(default use current-username:current-branch), for cross-repo PR using username:branch.
+  -b|--base     The name of the branch where you want the changes pulled into(default use master).
+  -d|--body     The contents of the pull request.

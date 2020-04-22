@@ -2,6 +2,15 @@ function Get-Settings {
     return Get-Content "$Global:root/configuration/settings.json" | ConvertFrom-Json
 }
 
+function Write-File {
+    param (
+        [string]$path,
+        [string]$text
+    )
+    
+    $text | Out-File -FilePath $path
+}
+
 function Compare-CommandOptions {
     param (
         [string[]]$arguments,
@@ -62,7 +71,7 @@ function Get-CommandOptionValue {
         }
     }
 
-    return $value
+    return $value.TrimEnd()
 }
 
 function Get-RequiredArgument {
@@ -86,4 +95,4 @@ function Get-RequiredArgument {
     }
 }
 
-Export-ModuleMember -Function Get-Settings, Compare-CommandOptions, Get-CommandOptionValue, Get-RequiredArgument
+Export-ModuleMember -Function Get-Settings, Write-File, Compare-CommandOptions, Get-CommandOptionValue, Get-RequiredArgument

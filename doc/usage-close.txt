@@ -1,0 +1,6 @@
+Usages: close [options] [arguments] <number>
+
+Options:
+  -h|--help     Get help.
+  -o|--owner    Which owner's reporitory you want to create a PR.
+  -r|--remote   Use specify remote(default origin).
