@@ -31,7 +31,7 @@ function Show-PullRequest {
     }
     catch {
         if ($_.Exception.Response.StatusCode.Value__ -eq "404") {
-            Write-Host -ForegroundColor $Global:settings.Global.ErrorColor "Invalid pull request number: $number"
+            Write-Host -ForegroundColor $Global:settings.Global.ErrorColor "Invalid pull request number: $number; or invalid owner: $owner"
         }
         else {
             Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message

@@ -83,7 +83,7 @@ if ($arg1.StartsWith("setting")) {
 # git pull-request list
 if ($arg1 -eq "list") {
     try {
-        Compare-CommandOptions $args @("--remote", "-r", "--state", "-s")
+        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s")
 
         if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
             Show-ListHelp
@@ -98,7 +98,8 @@ if ($arg1 -eq "list") {
             exit 0
         }
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
-        $owner = $arr[$arr.Length - 2]
+        $owner = $arr[$arr.Length - 2]    
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
         $repo = $arr[$arr.Length - 1]
         if ($repo.EndsWith('.git')) {
             $repo = $repo.Substring(0, $repo.Length - 4)
@@ -118,7 +119,7 @@ if ($arg1 -eq "list") {
 # git pull-request show <number>
 if ($arg1 -eq "show") {
     try {
-        Compare-CommandOptions $args @("--remote", "-r")
+        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o")
 
         if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
             Show-ShowHelp
@@ -134,6 +135,7 @@ if ($arg1 -eq "show") {
         }
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
         $repo = $arr[$arr.Length - 1].TrimEnd(".git")
     
         Show-PullRequest $owner $repo $number
