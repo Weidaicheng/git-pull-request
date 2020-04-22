@@ -120,7 +120,9 @@ if ($arg1 -eq "list") {
 # git pull-request show <number>
 if ($arg1 -eq "show") {
     try {
-        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o")
+        $options = @("--remote", "-r", "--owner", "-o")
+
+        Compare-CommandOptions $args $options
 
         if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
             Show-ShowHelp
@@ -128,7 +130,7 @@ if ($arg1 -eq "show") {
         }
     
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
-        $number = Get-RequiredArgument $args @("--remote", "-r") "PR number required."
+        $number = Get-RequiredArgument $args $options "PR number required."
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
