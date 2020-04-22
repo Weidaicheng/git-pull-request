@@ -100,7 +100,10 @@ if ($arg1 -eq "show") {
         }
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
-        $repo = $arr[$arr.Length - 1].TrimEnd(".git")
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
     
         Show-PullRequest $owner $repo $number
     }
