@@ -23,15 +23,20 @@ function Close-PullRequest {
         $json = @{
             state = "closed"
         } | ConvertTo-Json
-        $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls/$number" -Method "Patch" -ContentType "application/json" -Headers $headers -Body $json
-    }
-    catch {
-        if ($_.Exception.Response.StatusCode.Value__ -eq "404") {
-            throw "Pull request not found, please check you parameters."
+        $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls/$number" -Method "Patch" -ContentType "application/json" -Headers $headers -Body $json -SkipHttpErrorCheck -StatusCodeVariable statusCode
+        
+        if ($statusCode -eq '200') {
+            return
+        }
+        elseif ($statusCode -eq '404') {
+            throw "Pull request $number doesn't exist, please check the parameters."
         }
         else {
-            throw $_.Exception.Message
+            throw "Pull request $number close failed."
         }
+    }
+    catch {
+        throw $_.Exception.Message
     }
 }
 
