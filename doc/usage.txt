@@ -8,4 +8,5 @@ Commands:
   list          List pull requests from pull remote.
   show          Show pull request detail by number.
   new           Create a new pull request.
+  close         Close pull request by number.
   setting       Show/Set configuration.

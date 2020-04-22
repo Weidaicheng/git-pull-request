@@ -7,6 +7,7 @@ Import-Module -Force "$PSScriptRoot/module/VersionModule"
 Import-Module -Force "$PSScriptRoot/module/ListPRModule"
 Import-Module -Force "$PSScriptRoot/module/ShowPRModule"
 Import-Module -Force "$PSScriptRoot/module/NewPRModule"
+Import-Module -Force "$PSScriptRoot/module/ClosePRModule"
 Import-Module -Force "$PSScriptRoot/module/SettingModule"
 
 # global variables
@@ -189,6 +190,45 @@ if ($arg1 -eq "new") {
         $result = New-PullRequest $owner $repo $title $head $base $body
         Write-Host "PR $($result.number) created"
         Write-Host "View online at $($result.url)"
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# close pull request
+# git pull-request close [options] [arguments] <number>
+if ($arg1 -eq "close") {
+    try {
+        $options = @("--owner", "-o", "--remote", "-r")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-CloseHelp
+            exit 0
+        }
+
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $pushUrl = git remote get-url --push $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner ""
+
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        Close-PullRequest $owner $repo $number
+        Write-Host "PR $number closed"
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
