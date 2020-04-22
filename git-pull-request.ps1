@@ -9,6 +9,7 @@ Import-Module -Force "$PSScriptRoot/module/ShowPRModule"
 Import-Module -Force "$PSScriptRoot/module/NewPRModule"
 Import-Module -Force "$PSScriptRoot/module/ClosePRModule"
 Import-Module -Force "$PSScriptRoot/module/OpenPRModule"
+Import-Module -Force "$PSScriptRoot/module/MergePRModule"
 Import-Module -Force "$PSScriptRoot/module/SettingModule"
 
 # global variables
@@ -269,6 +270,45 @@ if ($arg1 -eq "open") {
 
         Open-PullRequest $owner $repo $number
         Write-Host "PR $number closed"
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# merge pull request
+# git pull-request merge [options] [arguments] <number>
+if ($arg1 -eq "merge") {
+    try {
+        $options = @("--owner", "-o", "--remote", "-r")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-MergeHelp
+            exit 0
+        }
+
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $pushUrl = git remote get-url --push $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner ""
+
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        Merge-PullRequest $owner $repo $number
+        Write-Host "PR $number merged"
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
