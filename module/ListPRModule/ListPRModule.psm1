@@ -22,10 +22,15 @@ function Show-PullRequests {
     foreach ($pr in $prs) {
         Write-Host -NoNewline "$($pr.number): "
         if ($pr.state -eq "open") {
-            Write-Host -ForegroundColor Green $pr.state
+            Write-Host -ForegroundColor $Global:settings.Global.OpenStateColor $pr.state
         }
         elseif ($pr.state -eq "closed") {
-            Write-Host -ForegroundColor Red $pr.state
+            if ($null -eq $pr.merged_at) {
+                Write-Host -ForegroundColor $Global:settings.Global.ClosedStateColor $pr.state    
+            }
+            else {
+                Write-Host -ForegroundColor $Global:settings.Global.MergedStateColor 'merged'
+            }
         }
     }
 }
