@@ -14,25 +14,49 @@ function Show-PullRequests {
     )
     
     $prs = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state&direction=$direction"
-    if ($null -ne $prs -and $prs -ne 0) {
-        Write-Host "PR   State"
-    }
-    else {
+    if (-not ($null -ne $prs -and $prs -ne 0)) {
         Write-Host "No pr request found."
+        return
     }
+
+    $prNumberMaxLength = ($prs | Measure-Object -Property number -Maximum).Maximum.ToString().Length
+    $prNumberMaxLength = $prNumberMaxLength -lt 2 ? 2 : $prNumberMaxLength
+
+    # write header
+    $headerString = New-Object -TypeName "System.Text.StringBuilder"
+    for ($i = 0; $i -lt $prNumberMaxLength - 2; $i++) {
+        $headerString.Append(" ");
+    }
+    $headerString.Append("PR  ");
+    $headerString.Append("State   ");
+    $headerString.Append("Title");
+    Write-Host $headerString
+    
     foreach ($pr in $prs) {
-        Write-Host -NoNewline "$($pr.number): "
+        # write pr number
+        for ($i = 0; $i -lt $prNumberMaxLength - $pr.number.ToString().Length; $i++) {
+            Write-Host -NoNewline " "
+        }
+        Write-Host -NoNewline "$($pr.number)  "
+
+        # write pr state
         if ($pr.state -eq "open") {
-            Write-Host -ForegroundColor $Global:settings.Global.OpenStateColor $pr.state
+            Write-Host -NoNewline -ForegroundColor $Global:settings.Global.OpenStateColor "open   "
         }
         elseif ($pr.state -eq "closed") {
             if ($null -eq $pr.merged_at) {
-                Write-Host -ForegroundColor $Global:settings.Global.ClosedStateColor $pr.state    
+                Write-Host -NoNewline -ForegroundColor $Global:settings.Global.ClosedStateColor "closed "    
             }
             else {
-                Write-Host -ForegroundColor $Global:settings.Global.MergedStateColor 'merged'
+                Write-Host -NoNewline -ForegroundColor $Global:settings.Global.MergedStateColor 'merged '
             }
         }
+
+        # write pr title
+        Write-Host -NoNewline " $($pr.title)"
+
+        # write new line
+        Write-Host
     }
 }
 
