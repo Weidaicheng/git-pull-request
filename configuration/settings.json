@@ -1,7 +1,10 @@
 {
   "Global": {
     "ErrorColor": "Red",
-    "Token": ""
+    "Token": "",
+    "OpenStateColor": "Green",
+    "ClosedStateColor": "DarkRed",
+    "MergedStateColor": "Magenta"
   },
   "Api": {
     "Url": "https://api.github.com"
