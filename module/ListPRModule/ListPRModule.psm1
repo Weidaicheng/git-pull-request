@@ -9,10 +9,11 @@ function Show-PullRequests {
     param (
         [string]$owner,
         [string]$repo,
-        [string]$state
+        [string]$state,
+        [string]$direction
     )
     
-    $prs = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state"
+    $prs = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state&direction=$direction"
     if ($null -ne $prs -and $prs -ne 0) {
         Write-Host "PR   State"
     }

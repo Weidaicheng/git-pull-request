@@ -87,7 +87,7 @@ if ($arg1.StartsWith("setting")) {
 # git pull-request list
 if ($arg1 -eq "list") {
     try {
-        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s")
+        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s", "--sort", "-t")
 
         if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
             Show-ListHelp
@@ -96,6 +96,7 @@ if ($arg1 -eq "list") {
     
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $state = Get-CommandOptionValue $args @("--state", "-s") "open" ""
+        $direction = Get-CommandOptionValue $args @("--sort", "-t") "desc" ""
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
@@ -109,7 +110,7 @@ if ($arg1 -eq "list") {
             $repo = $repo.Substring(0, $repo.Length - 4)
         }
     
-        Show-PullRequests $owner $repo $state
+        Show-PullRequests $owner $repo $state $direction
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
