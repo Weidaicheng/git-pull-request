@@ -15,7 +15,7 @@ function Show-PullRequests {
     
     $prs = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state&direction=$direction"
     if (-not ($null -ne $prs -and $prs -ne 0)) {
-        Write-Host "No pr request found."
+        Write-Host "No pull request found."
         return
     }
 
