@@ -23,13 +23,13 @@ function Show-PullRequests {
     $prNumberMaxLength = $prNumberMaxLength -lt 2 ? 2 : $prNumberMaxLength
 
     # write header
-    $headerString = New-Object -TypeName "System.Text.StringBuilder"
+    $headerString = ""
     for ($i = 0; $i -lt $prNumberMaxLength - 2; $i++) {
-        $headerString.Append(" ");
+        $headerString += " "
     }
-    $headerString.Append("PR  ");
-    $headerString.Append("State   ");
-    $headerString.Append("Title");
+    $headerString += "PR  "
+    $headerString += "State   "
+    $headerString += "Title"
     Write-Host $headerString
     
     foreach ($pr in $prs) {
