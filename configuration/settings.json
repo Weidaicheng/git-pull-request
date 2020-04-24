@@ -4,7 +4,9 @@
     "Token": "",
     "OpenStateColor": "Green",
     "ClosedStateColor": "DarkRed",
-    "MergedStateColor": "Magenta"
+    "MergedStateColor": "Magenta",
+    "BooleanTrueColor": "Green",
+    "BooleanFalseColor": "DarkRed"
   },
   "Api": {
     "Url": "https://api.github.com"
