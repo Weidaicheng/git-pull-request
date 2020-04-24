@@ -49,10 +49,10 @@ function Show-PullRequest {
 
             # write changed files
             Write-Host "  Changed files: $($response.changed_files)"
-            Write-Host
 
             # write body
             if ($response.body -ne "") {
+                Write-Host
                 Write-Host "Body: "
                 Write-Host $response.body
             }
