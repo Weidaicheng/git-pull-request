@@ -8,6 +8,7 @@ Import-Module -Force "$PSScriptRoot/module/ListPRModule"
 Import-Module -Force "$PSScriptRoot/module/ShowPRModule"
 Import-Module -Force "$PSScriptRoot/module/DiffPRModule"
 Import-Module -Force "$PSScriptRoot/module/CommitsPRModule"
+Import-Module -Force "$PSScriptRoot/module/FilesPRModule"
 Import-Module -Force "$PSScriptRoot/module/NewPRModule"
 Import-Module -Force "$PSScriptRoot/module/ClosePRModule"
 Import-Module -Force "$PSScriptRoot/module/OpenPRModule"
@@ -227,6 +228,44 @@ if ($arg1 -eq "commits") {
         }
     
         Show-Commits $owner $repo $number
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# files pull request
+# git pull-request files <number>
+if ($arg1 -eq "files") {
+    try {
+        $options = @("--remote", "-r", "--owner", "-o")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-FilesHelp
+            exit 0
+        }
+    
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        $pullUrl = git remote get-url --all $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+    
+        Show-Files $owner $repo $number
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message

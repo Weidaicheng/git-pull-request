@@ -8,6 +8,7 @@ Commands:
   list          List pull requests from pull remote.
   show          Show pull request detail by number.
   commits       Show commits by number.
+  files         Show changed files by number.
   diff          Show diff information by number.
   new           Create a new pull request.
   close         Close pull request by number.
