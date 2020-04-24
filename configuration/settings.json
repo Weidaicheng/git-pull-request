@@ -6,7 +6,8 @@
     "ClosedStateColor": "DarkRed",
     "MergedStateColor": "Magenta",
     "BooleanTrueColor": "Green",
-    "BooleanFalseColor": "DarkRed"
+    "BooleanFalseColor": "DarkRed",
+    "TimeFormat": "ddd, MMM dd yyyy HH:mm:ss"
   },
   "Api": {
     "Url": "https://api.github.com"
