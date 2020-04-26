@@ -6,6 +6,9 @@ Import-Module -Force "$PSScriptRoot/module/HelpModule"
 Import-Module -Force "$PSScriptRoot/module/VersionModule"
 Import-Module -Force "$PSScriptRoot/module/ListPRModule"
 Import-Module -Force "$PSScriptRoot/module/ShowPRModule"
+Import-Module -Force "$PSScriptRoot/module/DiffPRModule"
+Import-Module -Force "$PSScriptRoot/module/CommitsPRModule"
+Import-Module -Force "$PSScriptRoot/module/FilesPRModule"
 Import-Module -Force "$PSScriptRoot/module/NewPRModule"
 Import-Module -Force "$PSScriptRoot/module/ClosePRModule"
 Import-Module -Force "$PSScriptRoot/module/OpenPRModule"
@@ -87,7 +90,7 @@ if ($arg1.StartsWith("setting")) {
 # git pull-request list
 if ($arg1 -eq "list") {
     try {
-        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s")
+        Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s", "--sort", "-t")
 
         if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
             Show-ListHelp
@@ -96,6 +99,7 @@ if ($arg1 -eq "list") {
     
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $state = Get-CommandOptionValue $args @("--state", "-s") "open" ""
+        $direction = Get-CommandOptionValue $args @("--sort", "-t") "desc" ""
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
@@ -109,7 +113,7 @@ if ($arg1 -eq "list") {
             $repo = $repo.Substring(0, $repo.Length - 4)
         }
     
-        Show-PullRequests $owner $repo $state
+        Show-PullRequests $owner $repo $state $direction
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
@@ -148,6 +152,120 @@ if ($arg1 -eq "show") {
         }
     
         Show-PullRequest $owner $repo $number
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# diff pull request
+# git pull-request diff <number>
+if ($arg1 -eq "diff") {
+    try {
+        $options = @("--remote", "-r", "--owner", "-o")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-DiffHelp
+            exit 0
+        }
+    
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        $pullUrl = git remote get-url --all $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+    
+        Show-DiffInfo $owner $repo $number
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# commits pull request
+# git pull-request commits <number>
+if ($arg1 -eq "commits") {
+    try {
+        $options = @("--remote", "-r", "--owner", "-o")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-CommitsHelp
+            exit 0
+        }
+    
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        $pullUrl = git remote get-url --all $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+    
+        Show-Commits $owner $repo $number
+    }
+    catch {
+        Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+    }
+    finally {
+        exit 0
+    }
+}
+
+# files pull request
+# git pull-request files <number>
+if ($arg1 -eq "files") {
+    try {
+        $options = @("--remote", "-r", "--owner", "-o")
+
+        Compare-CommandOptions $args $options
+
+        if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
+            Show-FilesHelp
+            exit 0
+        }
+    
+        $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
+        $number = Get-RequiredArgument $args $options "PR number required."
+
+        $pullUrl = git remote get-url --all $remote
+        if (-not $?) {
+            exit 0
+        }
+        $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
+        $owner = $arr[$arr.Length - 2]
+        $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
+        $repo = $arr[$arr.Length - 1]
+        if ($repo.EndsWith('.git')) {
+            $repo = $repo.Substring(0, $repo.Length - 4)
+        }
+    
+        Show-Files $owner $repo $number
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message

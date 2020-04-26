@@ -8,3 +8,4 @@ Options:
                   open(default)
                   closed
                   all.
+  -t|--sort     Sort by PR numbers, asc or desc(default).

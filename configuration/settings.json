@@ -1,7 +1,13 @@
 {
   "Global": {
     "ErrorColor": "Red",
-    "Token": ""
+    "Token": "",
+    "OpenStateColor": "Green",
+    "ClosedStateColor": "DarkRed",
+    "MergedStateColor": "Magenta",
+    "BooleanTrueColor": "Green",
+    "BooleanFalseColor": "DarkRed",
+    "TimeFormat": "ddd, MMM dd yyyy HH:mm:ss"
   },
   "Api": {
     "Url": "https://api.github.com"
