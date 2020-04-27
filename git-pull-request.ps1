@@ -19,6 +19,9 @@ Import-Module -Force "$PSScriptRoot/module/SettingModule"
 $Global:root = $PSScriptRoot
 $Global:settings = Get-Settings
 
+# log arguments
+Write-LogInfo "git pull-request $($args -join ' ')"
+
 # first argument
 $arg1 = $args[0]
 if ($null -eq $arg1) {
@@ -28,11 +31,14 @@ if ($null -eq $arg1) {
 # get help
 # git pull-request --help|-l
 if ($arg1 -eq "--help" -or $arg1 -eq "-h") {
+    Write-LogInfo "get help"
+
     try {
         Show-Help
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -42,11 +48,14 @@ if ($arg1 -eq "--help" -or $arg1 -eq "-h") {
 # get version information
 # git pull-request --version|-v
 if ($arg1 -eq "--version" -or $arg1 -eq "-v") {
+    Write-LogInfo "get version information"
+
     try {
         Show-Version
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -56,6 +65,8 @@ if ($arg1 -eq "--version" -or $arg1 -eq "-v") {
 # settings
 # git pull-request setting.[sub setting] [new setting]
 if ($arg1.StartsWith("setting")) {
+    Write-LogInfo "settings"
+
     try {
         if ($arg1 -eq "setting") {
             if ($args[1] -eq "--help" -or $args[1] -eq "-h") {
@@ -80,6 +91,7 @@ if ($arg1.StartsWith("setting")) {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -89,6 +101,8 @@ if ($arg1.StartsWith("setting")) {
 # list pull requests
 # git pull-request list
 if ($arg1 -eq "list") {
+    Write-LogInfo "list pull request"
+
     try {
         Compare-CommandOptions $args @("--remote", "-r", "--owner", "-o", "--state", "-s", "--sort", "-t")
 
@@ -103,8 +117,11 @@ if ($arg1 -eq "list") {
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pullUrl: $pullUrl"
+
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]    
         $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
@@ -117,6 +134,7 @@ if ($arg1 -eq "list") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -126,6 +144,8 @@ if ($arg1 -eq "list") {
 # show pull request
 # git pull-request show <number>
 if ($arg1 -eq "show") {
+    Write-LogInfo "show pull request"
+
     try {
         $options = @("--remote", "-r", "--owner", "-o")
 
@@ -141,8 +161,11 @@ if ($arg1 -eq "show") {
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pullUrl: $pullUrl"
+
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
@@ -155,6 +178,7 @@ if ($arg1 -eq "show") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -164,6 +188,8 @@ if ($arg1 -eq "show") {
 # diff pull request
 # git pull-request diff <number>
 if ($arg1 -eq "diff") {
+    Write-LogInfo "diff pull request"
+
     try {
         $options = @("--remote", "-r", "--owner", "-o")
 
@@ -179,8 +205,11 @@ if ($arg1 -eq "diff") {
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pullUrl: $pullUrl"
+
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
@@ -193,6 +222,7 @@ if ($arg1 -eq "diff") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -202,6 +232,8 @@ if ($arg1 -eq "diff") {
 # commits pull request
 # git pull-request commits <number>
 if ($arg1 -eq "commits") {
+    Write-LogInfo "commits pull request"
+
     try {
         $options = @("--remote", "-r", "--owner", "-o")
 
@@ -217,8 +249,11 @@ if ($arg1 -eq "commits") {
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pullUrl: $pullUrl"
+
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
@@ -231,6 +266,7 @@ if ($arg1 -eq "commits") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -240,6 +276,8 @@ if ($arg1 -eq "commits") {
 # files pull request
 # git pull-request files <number>
 if ($arg1 -eq "files") {
+    Write-LogInfo "files pull request"
+
     try {
         $options = @("--remote", "-r", "--owner", "-o")
 
@@ -255,8 +293,11 @@ if ($arg1 -eq "files") {
 
         $pullUrl = git remote get-url --all $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pullUrl: $pullUrl"
+
         $arr = $pullUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $owner = Get-CommandOptionValue $args @("--owner", "-o") $owner, ""
@@ -269,6 +310,7 @@ if ($arg1 -eq "files") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -278,6 +320,8 @@ if ($arg1 -eq "files") {
 # create new pull request
 # git pull-request new [options] [arguments] <title>
 if ($arg1 -eq "new") {
+    Write-LogInfo "create new pull request"
+
     try {
         $options = @("--owner", "-o", "--remote", "-r", "--head", "-e", "--base", "-b", "--body", "-d")
 
@@ -291,8 +335,11 @@ if ($arg1 -eq "new") {
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $pushUrl = git remote get-url --push $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pushUrl: $pushUrl"
+
         $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $repo = $arr[$arr.Length - 1]
@@ -316,6 +363,7 @@ if ($arg1 -eq "new") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -325,6 +373,8 @@ if ($arg1 -eq "new") {
 # close pull request
 # git pull-request close [options] [arguments] <number>
 if ($arg1 -eq "close") {
+    Write-LogInfo "close pull request"
+
     try {
         $options = @("--owner", "-o", "--remote", "-r")
 
@@ -338,8 +388,11 @@ if ($arg1 -eq "close") {
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $pushUrl = git remote get-url --push $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pushUrl: $pushUrl"
+
         $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $repo = $arr[$arr.Length - 1]
@@ -355,6 +408,7 @@ if ($arg1 -eq "close") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -364,6 +418,8 @@ if ($arg1 -eq "close") {
 # open pull request
 # git pull-request open [options] [arguments] <number>
 if ($arg1 -eq "open") {
+    Write-LogInfo "open pull request"
+
     try {
         $options = @("--owner", "-o", "--remote", "-r")
 
@@ -377,8 +433,11 @@ if ($arg1 -eq "open") {
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $pushUrl = git remote get-url --push $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pushUrl: $pushUrl"
+
         $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $repo = $arr[$arr.Length - 1]
@@ -394,6 +453,7 @@ if ($arg1 -eq "open") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -403,6 +463,8 @@ if ($arg1 -eq "open") {
 # merge pull request
 # git pull-request merge [options] [arguments] <number>
 if ($arg1 -eq "merge") {
+    Write-LogInfo "merge pull request"
+
     try {
         $options = @("--owner", "-o", "--remote", "-r")
 
@@ -416,8 +478,10 @@ if ($arg1 -eq "merge") {
         $remote = Get-CommandOptionValue $args @("--remote", "-r") "origin" ""
         $pushUrl = git remote get-url --push $remote
         if (-not $?) {
+            Write-LogWarn "No repository found."
             exit 0
         }
+        Write-LogInfo "pushUrl: $pushUrl"
         $arr = $pushUrl -split "/" | Where-Object { $_ -ne "" }
         $owner = $arr[$arr.Length - 2]
         $repo = $arr[$arr.Length - 1]
@@ -433,6 +497,7 @@ if ($arg1 -eq "merge") {
     }
     catch {
         Write-Host -ForegroundColor $Global:settings.Global.ErrorColor $_.Exception.Message
+        Write-LogError $_.Exception
     }
     finally {
         exit 0
@@ -441,6 +506,7 @@ if ($arg1 -eq "merge") {
 
 # unrecognized command
 Write-Host -ForegroundColor $Global:settings.Global.ErrorColor "Unrecognized command $arg1"
+Write-LogWarn "Unrecognized command $arg1"
 # show help
 Show-Help
 exit 0
