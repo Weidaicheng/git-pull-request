@@ -95,4 +95,12 @@ function Get-RequiredArgument {
     }
 }
 
-Export-ModuleMember -Function Get-Settings, Write-File, Compare-CommandOptions, Get-CommandOptionValue, Get-RequiredArgument
+function Get-DocText {
+    param (
+        [string]$module
+    )
+    
+    return (Get-Content -Path "$Global:root/doc/$($module -eq '' ? 'usage' : 'usage-' + $module).txt") -Join "`n"
+}
+
+Export-ModuleMember -Function Get-Settings, Write-File, Compare-CommandOptions, Get-CommandOptionValue, Get-RequiredArgument, Get-DocText

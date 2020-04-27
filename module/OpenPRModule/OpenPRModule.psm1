@@ -1,8 +1,5 @@
 function Show-OpenHelp {
-    # get help text from doc
-    # TODO: abstract get doc function
-    $helpText = (Get-Content -Path "$Global:root/doc/usage-open.txt") -Join "`n"
-    Write-Host $helpText    
+    Write-Host (Get-DocText "open")
 }
 
 function Open-PullRequest {
