@@ -3,7 +3,7 @@ git-pull-request is an extension script based on [PowerShell Core](https://githu
 
 ### Preparation
 To use this, PowerShell Core needs to be installed on your machine firstly.
-- Windows [install](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-7), it's ok to use legacy PowerShell and skip this step.
+- Windows [install](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-7).
 - Linux [install](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7).
 - Mac [Install](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-macos?view=powershell-7).
 
