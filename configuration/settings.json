@@ -7,12 +7,17 @@
     "MergedStateColor": "Magenta",
     "BooleanTrueColor": "Green",
     "BooleanFalseColor": "DarkRed",
-    "TimeFormat": "ddd, MMM dd yyyy HH:mm:ss"
+    "TimeFormat": "ddd, MMM dd yyyy HH:mm:ss",
+    "LogLevel": "Info",
+    "LogSavedDays": "30"
   },
   "Api": {
     "Url": "https://api.github.com"
   },
   "About": {
-    "Version": "1.0.0"
+    "Version": ""
+  },
+  "LogClear": {
+    "LastClearDate": ""
   }
 }

@@ -1,5 +1,6 @@
 function Show-NewHelp {
-    Write-Host (Get-DocText "new")
+    Write-LogInfo "$($MyInvocation.MyCommand)"
+    Write-Host (Get-DocText "new"
 }
 
 function New-PullRequest {
@@ -11,41 +12,42 @@ function New-PullRequest {
         [string]$base,
         [string]$body
     )
+    Write-LogInfo "$($MyInvocation.MyCommand) $owner $repo $title $head $base $body"
 
-    try {
-        if ($Global:settings.Global.Token -eq "") {
-            throw "Token not set, please use setting command to set."
-        }
+    if ($Global:settings.Global.Token -eq "") {
+        throw "Token not set, please use setting command to set."
+    }
 
-        $headers = @{
-            Authorization = "token $($Global:settings.Global.Token)"
-        }
-        $json = @{
-            title = $title;
-            head  = $head;
-            base  = $base;
-            body  = $body;
-        } | ConvertTo-Json
-        $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls" -Method "Post" -ContentType "application/json" -Headers $headers -Body $json -SkipHttpErrorCheck -StatusCodeVariable statusCode
+    $headers = @{
+        Authorization = "token $($Global:settings.Global.Token)"
+    }
+    $json = @{
+        title = $title;
+        head  = $head;
+        base  = $base;
+        body  = $body;
+    } | ConvertTo-Json
+    $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls" -Method "Post" -ContentType "application/json" -Headers $headers -Body $json -SkipHttpErrorCheck -StatusCodeVariable statusCode
+    $statusCode -eq "201" ? (Write-LogInfo "status code $statusCode") : (Write-LogError "status code $statusCode")
 
-        if ($statusCode -eq '201') {
-            return @{
-                number = $response.number
-                url    = $response.url
-            }
-        }
-        elseif ($statusCode -eq '404') {
-            throw "Pull request creation failed, please check you parameters."
-        }
-        elseif ($statusCode -eq '422') {
-            throw $response.errors[0].message
-        }
-        else {
-            throw "Pull request $number creation failed."
+    if ($statusCode -eq '201') {
+        return @{
+            number = $response.number
+            url    = $response.url
         }
     }
-    catch {
-        throw $_.Exception.Message
+    else {
+        Write-LogError $response
+
+        $errorMsg = "Pull request $number creation failed."
+        if ($statusCode -eq "404") {
+            $errorMsg = "Pull request creation failed, please check you parameters."
+        }
+        elseif ($statusCode -eq "422") {
+            $errorMsg = $response.errors[0].message
+        }
+
+        throw $errorMsg
     }
 }
 

@@ -1,8 +1,11 @@
 function Show-SettingHelp {
-    Write-Host (Get-DocText "setting")
+    Write-LogInfo "$($MyInvocation.MyCommand)"
+    Write-Host (Get-DocText "setting"
 }
 
 function Show-AllSettings {
+    Write-LogInfo "$($MyInvocation.MyCommand)"
+
     ($Global:settings.Global.PSObject.Properties) | ForEach-Object {
         Write-Host "$($_.Name):$($_.Value)"
     }
@@ -12,6 +15,7 @@ function Show-Setting {
     param (
         [string]$name
     )
+    Write-LogInfo "$($MyInvocation.MyCommand) $name"
 
     if ($null -eq $Global:settings.Global.$name) {
         throw "Unrecognized setting: $name"
@@ -25,6 +29,7 @@ function Update-Setting {
         [string]$name,
         [string]$newValue
     )
+    Write-LogInfo "$($MyInvocation.MyCommand) $name $newValue"
 
     if ($null -eq $Global:settings.Global.$name) {
         throw "Unrecognized setting: $name"

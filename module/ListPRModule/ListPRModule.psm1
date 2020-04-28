@@ -1,4 +1,5 @@
 function Show-ListHelp {
+    Write-LogInfo "$($MyInvocation.MyCommand)"
     Write-Host (Get-DocText "list")
 }
 
@@ -9,51 +10,64 @@ function Show-PullRequests {
         [string]$state,
         [string]$direction
     )
+    Write-LogInfo "$($MyInvocation.MyCommand) $owner $repo $state $direction"
     
-    $prs = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state&direction=$direction"
-    if (-not ($null -ne $prs -and $prs -ne 0)) {
-        Write-Host "No pull request found."
-        return
-    }
+    $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls?state=$state&direction=$direction" -SkipHttpErrorCheck -StatusCodeVariable statusCode
+    $statusCode -eq "200" ? (Write-LogInfo "status code $statusCode") : (Write-LogError "status code $statusCode")
 
-    $prNumberMaxLength = ($prs | Measure-Object -Property number -Maximum).Maximum.ToString().Length
-    $prNumberMaxLength = $prNumberMaxLength -lt 2 ? 2 : $prNumberMaxLength
-
-    # write header
-    $headerString = ""
-    for ($i = 0; $i -lt $prNumberMaxLength - 2; $i++) {
-        $headerString += " "
-    }
-    $headerString += "PR  "
-    $headerString += "State   "
-    $headerString += "Title"
-    Write-Host $headerString
+    if ($statusCode -eq "200") {
+        if (-not ($null -ne $response -and $response -ne 0)) {
+            Write-LogInfo "No pull request found."
+            Write-Host "No pull request found."
+            return
+        }
     
-    foreach ($pr in $prs) {
-        # write pr number
-        for ($i = 0; $i -lt $prNumberMaxLength - $pr.number.ToString().Length; $i++) {
-            Write-Host -NoNewline " "
+        $prNumberMaxLength = ($response | Measure-Object -Property number -Maximum).Maximum.ToString().Length
+        $prNumberMaxLength = $prNumberMaxLength -lt 2 ? 2 : $prNumberMaxLength
+    
+        # write header
+        $headerString = ""
+        for ($i = 0; $i -lt $prNumberMaxLength - 2; $i++) {
+            $headerString += " "
         }
-        Write-Host -NoNewline "$($pr.number)  "
-
-        # write pr state
-        if ($pr.state -eq "open") {
-            Write-Host -NoNewline -ForegroundColor $Global:settings.Global.OpenStateColor "open   "
-        }
-        elseif ($pr.state -eq "closed") {
-            if ($null -eq $pr.merged_at) {
-                Write-Host -NoNewline -ForegroundColor $Global:settings.Global.ClosedStateColor "closed "    
+        $headerString += "PR  "
+        $headerString += "State   "
+        $headerString += "Title"
+        Write-Host $headerString
+        
+        foreach ($pr in $response) {
+            # write pr number
+            for ($i = 0; $i -lt $prNumberMaxLength - $pr.number.ToString().Length; $i++) {
+                Write-Host -NoNewline " "
             }
-            else {
-                Write-Host -NoNewline -ForegroundColor $Global:settings.Global.MergedStateColor 'merged '
+            Write-Host -NoNewline "$($pr.number)  "
+    
+            # write pr state
+            if ($pr.state -eq "open") {
+                Write-Host -NoNewline -ForegroundColor $Global:settings.Global.OpenStateColor "open   "
             }
+            elseif ($pr.state -eq "closed") {
+                if ($null -eq $pr.merged_at) {
+                    Write-Host -NoNewline -ForegroundColor $Global:settings.Global.ClosedStateColor "closed "    
+                }
+                else {
+                    Write-Host -NoNewline -ForegroundColor $Global:settings.Global.MergedStateColor 'merged '
+                }
+            }
+    
+            # write pr title
+            Write-Host -NoNewline " $($pr.title)"
+    
+            # write new line
+            Write-Host
         }
+    }
+    else {
+        Write-LogError $response
 
-        # write pr title
-        Write-Host -NoNewline " $($pr.title)"
+        $errorMsg = "Http error, code: $statusCode"
 
-        # write new line
-        Write-Host
+        throw $errorMsg
     }
 }
 
