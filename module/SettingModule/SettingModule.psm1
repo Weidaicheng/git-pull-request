@@ -1,6 +1,6 @@
 function Show-SettingHelp {
     Write-LogInfo "$($MyInvocation.MyCommand)"
-    Write-Host (Get-DocText "setting"
+    Write-Host (Get-DocText "setting")
 }
 
 function Show-AllSettings {
