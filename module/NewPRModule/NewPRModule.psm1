@@ -1,6 +1,6 @@
 function Show-NewHelp {
     Write-LogInfo "$($MyInvocation.MyCommand)"
-    Write-Host (Get-DocText "new"
+    Write-Host (Get-DocText "new")
 }
 
 function New-PullRequest {
