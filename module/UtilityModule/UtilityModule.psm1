@@ -1,3 +1,9 @@
+# variable initialize
+$logLevels = New-Object "System.Collections.Generic.Dictionary[string,int]"
+$logLevels["Info"] = 1
+$logLevels["Warn"] = 2
+$logLevels["Error"] = 4
+
 function Get-Settings {
     return Get-Content "$Global:root/configuration/settings.json" | ConvertFrom-Json
 }
@@ -11,7 +17,34 @@ function Write-File {
     $text | Out-File -FilePath $path
 }
 
+function Get-IsLogBegin {
+    <#
+        .SYNOPSIS
+            Get if the log line starts with [LogLevel]
+    #>
+    param (
+        [string]$line
+    )
+    
+    [string[]]$logKeys = $logLevels.Keys | ForEach-Object { "[$_]" }
+    
+    $isBegin = $false
+    foreach ($item in $logKeys) {
+        if ($line.StartsWith($item)) {
+            $isBegin = $true
+            break
+        }
+    }
+
+    return $isBegin
+}
+
 function Clear-Logs {
+    <#
+        .SYNOPSIS
+            Clear old logs.
+    #>
+
     $allSettings = Get-Settings
     $now = Get-Date
     $logFile = "$Global:root/logs/log.log"
@@ -49,12 +82,12 @@ function Clear-Logs {
     $content = Get-Content -Path $logFile
     $newContent = ""
     for ($i = 0; $i -lt $content.Length; $i++) {
-        if ($content[$i].StartsWith("[Info]") -or
-            $content[$i].StartsWith("[Warn]") -or
-            $content[$i].StartsWith("[Error]")) {
+        $contentI = $content[$i].ToString()
+
+        if ((Get-IsLogBegin $contentI)) {
             # this line is a log beginning
             try {
-                $logTime = [DateTime]($content[$i] -split "]")[1].ToString().TrimStart('[')
+                $logTime = [DateTime]($contentI -split "]")[1].ToString().TrimStart('[')
             }
             catch {
                 # invalid log time, set this log expired
@@ -62,22 +95,22 @@ function Clear-Logs {
             }
             if ((New-TimeSpan -Start $logTime -End ($now)).Days -lt $logSavedDays) {
                 # this log hasn't expired yet
-                $newContent += $content[$i]
+                $newContent += $contentI
                 if ($i + 1 -lt $content.Length) {
                     $newContent += "`n"
                 }
 
                 for ($j = $i + 1; $j -lt $content.Length; $j++) {
-                    if ($content[$j].StartsWith("[Info]") -or
-                        $content[$j].StartsWith("[Warn]") -or
-                        $content[$j].StartsWith("[Error]")) {
-                            # next line is a log beginning
-                            $i = $j - 1
-                            break;
-                        }
+                    $contentJ = $content[$j].ToString()
+
+                    if ((Get-IsLogBegin $contentJ)) {
+                        # next line is a log beginning
+                        $i = $j - 1
+                        break;
+                    }
                     else {
                         # this line belongs to last log which hasn't exipred yet
-                        $newContent += $content[$j]
+                        $newContent += $contentJ
                         if ($j + 1 -lt $content.Length) {
                             $newContent += "`n"
                         }
@@ -87,13 +120,13 @@ function Clear-Logs {
             else {
                 # this log has expired
                 for ($j = $i + 1; $j -lt $content.Length; $j++) {
-                    if ($content[$j].StartsWith("[Info]") -or
-                        $content[$j].StartsWith("[Warn]") -or
-                        $content[$j].StartsWith("[Error]")) {
-                            # next line is a log beginning
-                            $i = $j - 1
-                            break;
-                        }
+                    $contentJ = $content[$j].ToString()
+
+                    if ((Get-IsLogBegin $contentJ)) {
+                        # next line is a log beginning
+                        $i = $j - 1
+                        break;
+                    }
                     else {
                         # this line beglongs to last log which has expired, do nothing
                     }
@@ -108,6 +141,11 @@ function Clear-Logs {
 }
 
 function Hide-LogText {
+    <#
+        .SYNOPSIS
+            Hide information to log, for example token
+    #>
+    
     param (
         [string]$logTxt,
         [string]$key,
@@ -140,70 +178,83 @@ function Hide-LogText {
 }
 
 function Write-Log {
+    <#
+        .SYNOPSIS
+            Write log
+    #>
+
     param (
         [string]$logLevel,
         [string]$logTxt
     )
 
-    # clear old log
-    Clear-Logs
+    try {
+        # get log level from setting
+        [int]$setlogLevel = $null -eq $logLevels[(Get-Settings).Global.LogLevel] ? $logLevels[($logLevels.Keys)[0]] : $logLevels[(Get-Settings).Global.LogLevel]
+        [int]$currentLogLevel = $logLevels[$logLevel]
 
-    # create log folder if it doesn't exist
-    $logFolder = "$Global:root/logs"
-    if (-not (Test-Path $logFolder -PathType Container)) {
-        $tmp = New-Item -ItemType Directory -Path $logFolder
+        if ($currentLogLevel -lt $setlogLevel) {
+            return
+        }
+
+        # clear old log
+        Clear-Logs
+    
+        # create log folder if it doesn't exist
+        $logFolder = "$Global:root/logs"
+        if (-not (Test-Path $logFolder -PathType Container)) {
+            $tmp = New-Item -ItemType Directory -Path $logFolder
+        }
+        # hide token value
+        $logTxt = Hide-LogText $logTxt "Token" "*"
+        # get timestamp
+        $now = (Get-Date).ToString((Get-Settings).Global.TimeFormat)
+        # write log
+        Add-Content -Path "$logFolder/log.log" -Value "[$logLevel][$now] $logTxt"
     }
-    # hide token value
-    $logTxt = Hide-LogText $logTxt "Token" "*"
-    # get timestamp
-    $now = (Get-Date).ToString((Get-Settings).Global.TimeFormat)
-    # write log
-    Add-Content -Path "$logFolder/log.log" -Value "[$logLevel][$now] $logTxt"
+    catch {
+        # ignored
+        # Write-Host $_.Exception   
+    }
 }
 
 function Write-LogInfo {
+    <#
+        .SYNOPSIS
+            Write info level log
+    #>
+
     param (
         [string]$logTxt
     )
     
-    try {
-        if ((Get-Settings).Global.LogLevel -eq "Info") {
-            Write-Log "Info" $logTxt
-        }
-    }
-    catch {
-        # ignored
-    }
+    Write-Log "Info" $logTxt
 }
 
 function Write-LogWarn {
+    <#
+        .SYNOPSIS
+            Write warn level log
+    #>
+
     param (
         [string]$logTxt
     )
     
-    try {
-        if ((Get-Settings).Global.LogLevel -eq "Info" -or (Get-Settings).Global.LogLevel -eq "Warn") {
-            Write-Log "Warn" $logTxt
-        }
-    }
-    catch {
-        # ignored
-    }
+    Write-Log "Warn" $logTxt
 }
 
 function Write-LogError {
+    <#
+        .SYNOPSIS
+            Write error level log
+    #>
+
     param (
         [string]$logTxt
     )
     
-    try {
-        if ((Get-Settings).Global.LogLevel -eq "Info" -or (Get-Settings).Global.LogLevel -eq "Warn" -or (Get-Settings).Global.LogLevel -eq "Error") {
-            Write-Log "Error" $logTxt
-        }
-    }
-    catch {
-        # ignored
-    }
+    Write-Log "Error" $logTxt
 }
 
 function Compare-CommandOptions {
