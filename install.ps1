@@ -1,33 +1,5 @@
 #! /usr/bin/env pwsh
 
-# 1. request root authorize on Linux & Mac
-if ($IsLinux) {
-    $currentUser = $env:USER
-	if ($currentUser -ne "root") {
-		sudo pwsh test.ps1 $currentUser
-		exit
-	}
-}
-if ($IsMacOS) {
-    # TODO: Mac
-}
-
-# 2. get current user
-if ($IsWindows) {
-    $user = $env:USERNAME
-}
-elseif ($IsLinux) {
-    $user = $args[0]
-    $user = $null -eq $user -or $user -eq "" ? $env:USER : $user
-}
-elseif ($IsMacOS) {
-    # TODO: Mac
-}
-else {
-    Write-Host -ForegroundColor Red "Uncognized machine type."
-    exit
-}
-
 function Get-Setting {
     <#
         .SYNOPSIS
@@ -56,7 +28,7 @@ function Get-Setting {
 $releasePath = "$PSScriptRoot/release"
 Write-Host "File path $releasePath"
 
-# 3. copy all files to program location
+# 1. copy all files to program location
 # get destination folder
 $destination = ""
 if ($IsWindows) {
@@ -64,8 +36,8 @@ if ($IsWindows) {
     $destination = "$($Env:USERPROFILE)/AppData/Local"
 }
 elseif ($IsLinux) {
-    # on Linux: /usr/bin/git-pull-request
-    $destination = "/usr/bin"
+    # on Linux: ~/.pss/git-pull-request
+    $destination = "~/.pss"
 }
 elseif ($IsMacOS) {
     # on Mac: /Application/git-pull-request
@@ -130,7 +102,7 @@ else {
     }
 }
 
-# 4. set up PATH
+# 2. set up PATH
 if ($IsWindows) {
     $path = [Environment]::GetEnvironmentVariable("PATH", "user")
     if ($path.IndexOf($destination) -gt -1) {
@@ -142,13 +114,12 @@ if ($IsWindows) {
     }
 }
 elseif ($IsLinux) {
-    $path = [Environment]::GetEnvironmentVariable("PATH")
-    if ($path.IndexOf($destination) -gt -1) {
+    if (([Environment]::GetEnvironmentVariable("PATH")).IndexOf(".pss/git-pull-request") -gt -1) {
         Write-Host "Path exists, skipping setting path..."
     }
     else {
         Write-Host "Setting new PATH $destination"  
-        [Environment]::SetEnvironmentVariable("PATH", $path + ":$destination")  
+        Add-Content -Path "~/.bashrc" -Value ("PATH=$" + "PATH:$destination`nexport PATH")
     }
 }
 elseif ($IsMacOS) {
@@ -159,5 +130,5 @@ else {
     exit
 }
 
-# 5. installation finish
+# 3. installation finish
 Write-Host "Installation finish."
