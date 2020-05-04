@@ -114,12 +114,19 @@ if ($IsWindows) {
     }
 }
 elseif ($IsLinux) {
-    if (([Environment]::GetEnvironmentVariable("PATH")).IndexOf(".pss/git-pull-request") -gt -1) {
-        Write-Host "Path exists, skipping setting path..."
+    if (((Get-Content -Path "~/.bashrc") | %{ $_ -match "~/.pss/git-pull-request" }) -contains $true) {
+        Write-Host "Path exists in ~/.bashrc, skipping setting path..."
     }
     else {
-        Write-Host "Setting new PATH $destination"  
+        Write-Host "Setting new PATH $destination in ~/.bashrc"  
         Add-Content -Path "~/.bashrc" -Value ("PATH=$" + "PATH:$destination`nexport PATH")
+    }
+    if (((Get-Content -Path "~/.profile") | %{ $_ -match "~/.pss/git-pull-request" }) -contains $true) {
+        Write-Host "Path exists in ~/.profile, skipping setting path..."
+    }
+    else {
+        Write-Host "Setting new PATH $destination in ~/.profile"  
+        Add-Content -Path "~/.profile" -Value ("PATH=$" + "PATH:$destination`nexport PATH")
     }
 }
 elseif ($IsMacOS) {
