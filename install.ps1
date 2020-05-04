@@ -147,7 +147,20 @@ elseif ($IsLinux) {
     }
 }
 elseif ($IsMacOS) {
-    # TODO: Mac
+    if (((Get-Content -Path "~/.bashrc") | %{ $_ -match "~/.pss/git-pull-request" }) -contains $true) {
+        Write-Host "Path exists in ~/.bashrc, skipping setting path..."
+    }
+    else {
+        Write-Host "Setting new PATH $destination in ~/.bashrc"  
+        Add-Content -Path "~/.bashrc" -Value ("export PATH=$" + "PATH:$destination")
+    }
+    if (((Get-Content -Path "~/.bash_profile") | %{ $_ -match "~/.pss/git-pull-request" }) -contains $true) {
+        Write-Host "Path exists in ~/.bash_profile, skipping setting path..."
+    }
+    else {
+        Write-Host "Setting new PATH $destination in ~/.bash_profile"  
+        Add-Content -Path "~/.bash_profile" -Value ("export PATH=$" + "PATH:$destination")
+    }
 }
 else {
     Write-Host -ForegroundColor Red "Uncognized machine type."
