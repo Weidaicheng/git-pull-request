@@ -1,8 +1,6 @@
 function Show-FilesHelp {
-    # get help text from doc
-    # TODO: abstract get doc function
-    $helpText = (Get-Content -Path "$Global:root/doc/usage-files.txt") -Join "`n"
-    Write-Host $helpText    
+    Write-LogInfo "$($MyInvocation.MyCommand)"
+    Write-Host (Get-DocText "files")
 }
 
 function Show-Files {
@@ -11,39 +9,40 @@ function Show-Files {
         [string]$repo,
         [int]$number
     )
+    Write-LogInfo "$($MyInvocation.MyCommand) $owner $repo $number"
 
-    try {
-        $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls/$number/files" -SkipHttpErrorCheck -StatusCodeVariable statusCode
+    $response = Invoke-RestMethod -Uri "$($Global:settings.Api.Url)/repos/$owner/$repo/pulls/$number/files" -SkipHttpErrorCheck -StatusCodeVariable statusCode
+    $statusCode -eq "200" ? (Write-LogInfo "status code $statusCode") : (Write-LogError "status code $statusCode")
 
-        if ($statusCode -eq "200") {
-            foreach ($item in $response) {
-                # write sha
-                Write-Host -ForegroundColor Yellow "commit $($item.sha)"
+    if ($statusCode -eq "200") {
+        foreach ($item in $response) {
+            # write sha
+            Write-Host -ForegroundColor Yellow "commit $($item.sha)"
 
-                # write filename
-                Write-Host "File  : $($item.filename)"
+            # write filename
+            Write-Host "File  : $($item.filename)"
 
-                # write status
-                Write-Host "Status: $($item.status)"
+            # write status
+            Write-Host "Status: $($item.status)"
 
-                # write statics
-                Write-Host "Additions: $($item.additions)"
-                Write-Host "Deletions: $($item.deletions)"
-                Write-Host "Changes  : $($item.changes)"
+            # write statics
+            Write-Host "Additions: $($item.additions)"
+            Write-Host "Deletions: $($item.deletions)"
+            Write-Host "Changes  : $($item.changes)"
 
-                # write new line
-                Write-Host
-            } 
-        }
-        elseif ($statusCode -eq "404") {
-            throw "Pull request $number not found, please check your parameters."
-        }
-        else {
-            throw "Http error, code: $statusCode"
-        }
+            # write new line
+            Write-Host
+        } 
     }
-    catch {
-        throw $_.Exception.Message
+    else {
+        Write-LogError $response
+
+        $errorMsg = "Http error, code: $statusCode"
+        if ($statusCode -eq "404") {
+            $errorMsg = "Pull request $number not found, please check your parameters."
+        }
+
+        throw $errorMsg
     }
 }
 
