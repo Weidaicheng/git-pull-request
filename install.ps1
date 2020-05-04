@@ -136,14 +136,14 @@ elseif ($IsLinux) {
     }
     else {
         Write-Host "Setting new PATH $destination in ~/.bashrc"  
-        Add-Content -Path "~/.bashrc" -Value ("PATH=$" + "PATH:$destination`nexport PATH")
+        Add-Content -Path "~/.bashrc" -Value ("export PATH=$" + "PATH:$destination")
     }
     if (((Get-Content -Path "~/.profile") | %{ $_ -match "~/.pss/git-pull-request" }) -contains $true) {
         Write-Host "Path exists in ~/.profile, skipping setting path..."
     }
     else {
         Write-Host "Setting new PATH $destination in ~/.profile"  
-        Add-Content -Path "~/.profile" -Value ("PATH=$" + "PATH:$destination`nexport PATH")
+        Add-Content -Path "~/.profile" -Value ("export PATH=$" + "PATH:$destination")
     }
 }
 elseif ($IsMacOS) {
