@@ -11,8 +11,7 @@ And also, [git](https://git-scm.com/) needs to be installed firstly.
 
 ### How to install
 1. Download scripts from [release](https://github.com/Weidaicheng/git-pull-request/releases) page.
-2. Put it on wherever location on your machine,for example: /usr/wherever/git-pull-request.
-3. Add this folder path to you system PATH.
+2. Running `install.ps1` in your terminal.
 4. Now restart your terminal(If needed), and try `git pull-request`, you should see outputs like this:
 ```
 Usages: pull-request [options] [command] [command-options] [arguments]
