@@ -36,6 +36,17 @@ if ($IsWindows) {
     $destination = "$($Env:USERPROFILE)/AppData/Local"
 }
 elseif ($IsLinux) {
+    # check WSL
+    if ($null -ne $Env:WSL_DISTRO_NAME) {
+        Write-Host "WSL $Env:WSL_DISTRO_NAME"
+
+        if (($Env:PATH | %{ $_ -match "/AppData/Local/git-pull-request" }) -contains $true) {
+            # has already installed in windows host
+            Write-Host "Host has already installed, existing installation..."
+            exit
+        }
+    }
+
     # on Linux: ~/.pss/git-pull-request
     $destination = "~/.pss"
 }
