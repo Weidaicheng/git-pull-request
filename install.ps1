@@ -24,6 +24,12 @@ function Get-Setting {
     return $newSetting
 }
 
+# check if git has installed or not
+if (-not(Get-Command "git" -ErrorAction SilentlyContinue)) {
+    Write-Host -ForegroundColor Red "Please install git first."
+    exit
+}
+
 # set relesse file path
 $releasePath = "$PSScriptRoot/release"
 Write-Host "File path $releasePath"
